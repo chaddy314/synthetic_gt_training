@@ -110,7 +110,7 @@
   },
   "evaluator": {
     "eval-dir": "eval/example/",
-    "output-dir": "eval/example/merge/"
+    "xlsx-output": "eval/example/merge/"
   }
 }
 
