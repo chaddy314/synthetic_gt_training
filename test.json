@@ -1,0 +1,116 @@
+{
+  "general": {
+    "job-name": "test",
+    "source-type": "txt",
+    "synthgt-env" : "../venv_synth/bin/activate",
+    "calamari-env" : "../venv_calamari/bin/activate",
+    "preprocess-text" : false,
+    "use-eval-text-file" : true,
+    "skip-synth-gen" : false,
+    "skip-training" : false,
+    "skip-evaluation" : true
+    },
+  "synthgt": {
+    "source-text-file" : "text/test.txt",
+    "source-eval-text-file": "text/test_eval.txt",
+    "output_dir": "datasets/test/",
+    "font_dir": "fonts/50font/",
+    "line-size": 10,
+    "eval-size": 10,
+    "output-fonts": false,
+    "filter-common-confusions": true,
+    "check-for-caps": true,
+    "trdg": {
+      "line_heigth_range": [24, 36],
+      "skewing_angle" : 0,
+      "random_skew" : false,
+      "blur": 0,
+      "random_blur": false,
+      "background_types": 1
+    }
+  },
+  "calamari": {
+    "calamari-train": {
+      "model-name": "25k_german_synth",
+      "training-data": "lines",
+      "model-path": "models/test/",
+      "split-train": "",
+      "rel-fold-data-path": [],
+      "dataset-path": "datasets/test/",
+      "augmentations": 5,
+      "early-stopping": 5,
+      "options": [
+                    "--device.gpus 0",
+                    "--device.gpu_auto_tune true",
+                    "--network deep3"
+                  ],
+      "warmstart": {
+        "calamari-train": {
+          "model-name": "25k_german_synth_fold_0",
+          "training-data": "page",
+          "model-path": "models/cft_10_test/",
+          "split-train": "",
+          "rel-fold-data-path": ["fold_0/", "fold_1/", "fold_2/", "fold_3/" , "fold_4/"],
+          "dataset-path": "datasets/book_folds/",
+          "augmentations": 5,
+          "early-stopping": 5,
+          "options": [
+                        "--device.gpus 0",
+                        "--device.gpu_auto_tune true",
+                        "--network deep3"
+                      ],
+          "warmstart": {}
+        }
+      }
+    },
+    "calamari-predict": [{
+        "models": ["models/25k_german_synth/best.ckpt.json"],
+        "images": "datasets/eval_books/",
+        "gt-ext": ".gt.xml",
+        "pred-ext": ".pred2.xml",
+        "text-index": 0,
+        "options": ["--predictor.device.gpus 0"]
+      },{
+        "models": [
+                  "models/cft_10/fold_0/best.ckpt.json",
+                  "models/cft_10/fold_1/best.ckpt.json",
+                  "models/cft_10/fold_2/best.ckpt.json",
+                  "models/cft_10/fold_3/best.ckpt.json",
+                  "models/cft_10/fold_4/best.ckpt.json"
+                  ],
+        "images": "datasets/eval_books/",
+        "gt-ext": ".gt.xml",
+        "pred-ext": ".pred8.xml",
+        "text-index": 0,
+        "options": ["--predictor.device.gpus 0"]
+      }
+    ],
+    "calamari-eval": [{
+      "xml-files": "datasets/eval_books/*.gt.xml",
+      "pred-ext": ".pred2.xml",
+      "xlsx-output": "eval/example/model2.xlsx",
+      "options": [
+                  "--gt.skip_invalid True",
+                  "--evaluator.setup.num_processes 8",
+                  "--evaluator.skip_empty_gt True",
+                  "--non_existing_file_handling_mode=skip"
+                 ]
+      },{
+      "xml-files": "datasets/eval_books/*.gt.xml",
+      "pred-ext": ".pred8.xml",
+      "xlsx-output": "eval/example/model8.xlsx",
+      "options": [
+                  "--gt.skip_invalid True",
+                  "--evaluator.setup.num_processes 8",
+                  "--evaluator.skip_empty_gt True",
+                  "--non_existing_file_handling_mode=skip"
+                 ]
+      }
+    ]
+  },
+  "evaluator": {
+    "eval-dir": "eval/example/",
+    "output-dir": "eval/example/merge/"
+  }
+}
+
